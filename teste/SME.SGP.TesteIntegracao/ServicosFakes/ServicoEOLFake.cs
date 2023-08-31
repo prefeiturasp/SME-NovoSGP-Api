@@ -833,7 +833,25 @@ namespace SME.SGP.TesteIntegracao.ServicosFakes
 
         public Task<EstruturaInstitucionalRetornoEolDTO> ObterEstruturaInstuticionalVigentePorTurma(string[] codigosTurma = null)
         {
-            return null;
+            return Task.FromResult(new EstruturaInstitucionalRetornoEolDTO()
+            {
+                Dres = new List<AbrangenciaDreRetornoEolDto>()
+                {
+                   new ()
+                   {
+                       Ues = new List<AbrangenciaUeRetornoEolDto>()
+                       {
+                           new ()
+                           {
+                               Turmas = new List<AbrangenciaTurmaRetornoEolDto>()
+                               {
+                                   new () 
+                               }
+                           }
+                       }
+                   } 
+                }
+            });
         }
 
         public async Task<IEnumerable<UsuarioEolRetornoDto>> ObterFuncionariosPorCargoUe(string ueId, long cargoId)
