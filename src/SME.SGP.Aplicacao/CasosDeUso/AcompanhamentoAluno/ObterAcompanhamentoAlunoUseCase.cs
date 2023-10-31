@@ -12,28 +12,26 @@ namespace SME.SGP.Aplicacao
 {
     public class ObterAcompanhamentoAlunoUseCase : AbstractUseCase, IObterAcompanhamentoAlunoUseCase
     {
-        private readonly IConsultasPeriodoFechamento consultaPeriodoFechamento;
 
-        public ObterAcompanhamentoAlunoUseCase(IMediator mediator, IConsultasPeriodoFechamento consultaPeriodoFechamento) : base(mediator)
+        public ObterAcompanhamentoAlunoUseCase(IMediator mediator) : base(mediator)
         {
-            this.consultaPeriodoFechamento = consultaPeriodoFechamento ?? throw new ArgumentNullException(nameof(consultaPeriodoFechamento));
         }
 
-        public async Task<AcompanhamentoAlunoTurmaSemestreDto> Executar(FiltroAcompanhamentoTurmaAlunoSemestreDto filtro)
+        public async Task<AcompanhamentoAlunoTurmaSemestreDto> Executar(FiltroAcompanhamentoTurmaAlunoSemestreDto param)
         {
-            var turmaCodigo = await mediator.Send(new ObterTurmaCodigoPorIdQuery(filtro.TurmaId));
+            var turmaCodigo = await mediator.Send(new ObterTurmaCodigoPorIdQuery(param.TurmaId));
             var turma = await ObterTurma(turmaCodigo);
 
-            var acompanhamentoAlunoTurmaSemestre = await ObterAcompanhamentoSemestre(filtro.AlunoId, turma.Id, filtro.Semestre);
+            var acompanhamentoAlunoTurmaSemestre = await ObterAcompanhamentoSemestre(param.AlunoId, turma.Id, param.Semestre);
 
             var periodosEscolares = await mediator.Send(new ObterPeriodosEscolaresPorAnoEModalidadeTurmaQuery(turma.ModalidadeCodigo, turma.AnoLetivo, turma.Semestre));
 
-            int bimestre = filtro.Semestre == 1 ? 2 : 4;
+            int bimestre = param.Semestre == 1 ? 2 : 4;
 
             acompanhamentoAlunoTurmaSemestre.PodeEditar = await PodeEditarTurma(turma, bimestre);
 
-            TratamentoSemestre(acompanhamentoAlunoTurmaSemestre, periodosEscolares, filtro.Semestre, turma.ModalidadeCodigo);
-            await TratamentoPercursoIndividual(acompanhamentoAlunoTurmaSemestre, filtro.TurmaId, filtro.AlunoId, filtro.ComponenteCurricularId);
+            TratamentoSemestre(acompanhamentoAlunoTurmaSemestre, periodosEscolares, param.Semestre, turma.ModalidadeCodigo);
+            await TratamentoPercursoIndividual(acompanhamentoAlunoTurmaSemestre, param.TurmaId, param.AlunoId, param.ComponenteCurricularId);
             await ParametroQuantidadeFotosAluno(acompanhamentoAlunoTurmaSemestre, turma.AnoLetivo);
 
             return acompanhamentoAlunoTurmaSemestre;
